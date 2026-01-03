@@ -45,7 +45,7 @@ app.post("/api/memos", async (req, res) => {
 app.get("/api/memos", async (req, res) => {
 	try {
 		const [rows] = await db.execute(
-			"SELECT * FROM memos ORDER BY created_at DESC"
+			"SELECT * FROM memos ORDER BY create_date DESC"
 		);
 		res.json(rows);
 	} catch (error) {
