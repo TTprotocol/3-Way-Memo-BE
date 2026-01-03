@@ -44,7 +44,9 @@ app.post("/api/memos", async (req, res) => {
 // 메모 목록 조회 API
 app.get("/api/memos", async (req, res) => {
 	try {
-		const [rows] = await db.execute("SELECT * FROM memos BY create_date DESC");
+		const [rows] = await db.execute(
+			"SELECT * FROM memos ORDER BY created_at DESC"
+		);
 		res.json(rows);
 	} catch (error) {
 		console.error(error);
