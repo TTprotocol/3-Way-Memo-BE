@@ -53,3 +53,49 @@ app.get("/api/memos", async (req, res) => {
 		res.status(500).json({ message: "서버 오류가 발생했습니다." });
 	}
 });
+
+// 메모 수정 API
+app.patch("/api/memos", async (req, res) => {
+	const { id, content } = req.body;
+
+	if (!id || !content)
+		return res
+			.status(400)
+			.json({ message: "ID와 수정 내용을 모두 입력해주세요." });
+
+	try {
+		const [result] = await db.execute(
+			"UPDATE memos SET content = ? WHERE id = ?",
+			[content, id]
+		);
+
+		if (result.affectedRows === 0) {
+			return res.status(404).json({ message: "해당 메모를 찾을 수 없습니다." });
+		}
+
+		res.status(200).json({ id, content });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "서버 오류가 발생했습니다." });
+	}
+});
+
+// 메모 삭제 API
+app.delete("/api/memos", async (req, res) => {
+	const { id } = req.body;
+
+	if (!id) return res.status(400).json({ message: "ID값이 누락되었습니다." });
+
+	try {
+		const [result] = await db.execute("DELETE FROM memos WHERE id = ?", [id]);
+
+		if (result.affectedRows === 0) {
+			return res.status(404).json({ message: "해당 메모를 찾을 수 없습니다." });
+		}
+
+		res.status(200).json({ id });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "서버 오류가 발생했습니다." });
+	}
+});
