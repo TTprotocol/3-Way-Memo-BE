@@ -39,6 +39,19 @@ app.listen(PORT, () => {
 	console.log(`서버가 포트 ${PORT}에서 정상 작동 중입니다.`);
 });
 
+// 메모 목록 조회 API
+app.get("/api/memos", async (req, res) => {
+	try {
+		const [rows] = await db.execute(
+			"SELECT * FROM memos ORDER BY create_date DESC"
+		);
+		res.json(rows);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "서버 오류가 발생했습니다." });
+	}
+});
+
 // 메모 생성 API
 app.post("/api/memos", async (req, res) => {
 	const { content } = req.body;
@@ -54,19 +67,6 @@ app.post("/api/memos", async (req, res) => {
 		);
 
 		res.status(201).json({ id: result.insertId, content });
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: "서버 오류가 발생했습니다." });
-	}
-});
-
-// 메모 목록 조회 API
-app.get("/api/memos", async (req, res) => {
-	try {
-		const [rows] = await db.execute(
-			"SELECT * FROM memos ORDER BY create_date DESC"
-		);
-		res.json(rows);
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "서버 오류가 발생했습니다." });
@@ -92,7 +92,9 @@ app.put("/api/memos", async (req, res) => {
 			return res.status(404).json({ message: "해당 메모를 찾을 수 없습니다." });
 		}
 
-		res.status(200).json({ id, content });
+		const [row] = await db.execute("SELECT * FROM memos WHERE id = ?", id);
+
+		res.status(200).json(row[0]);
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "서버 오류가 발생했습니다." });
@@ -100,8 +102,8 @@ app.put("/api/memos", async (req, res) => {
 });
 
 // 메모 삭제 API
-app.delete("/api/memos", async (req, res) => {
-	const { id } = req.body;
+app.delete("/api/memos/:id", async (req, res) => {
+	const { id } = req.params;
 
 	if (!id) return res.status(400).json({ message: "ID값이 누락되었습니다." });
 
