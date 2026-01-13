@@ -92,7 +92,7 @@ app.put("/api/memos", async (req, res) => {
 			return res.status(404).json({ message: "해당 메모를 찾을 수 없습니다." });
 		}
 
-		const [row] = await db.execute("SELECT * FROM memos WHERE id = ?", id);
+		const [row] = await db.execute("SELECT * FROM memos WHERE id = ?", [id]);
 
 		res.status(200).json(row[0]);
 	} catch (error) {
